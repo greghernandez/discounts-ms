@@ -1,3 +1,4 @@
-export * from './ping.controller';
-export * from './coupon.controller';
+export * from './coupons.controller';
 export * from './discount.controller';
+export * from './ping.controller';
+
