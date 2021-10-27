@@ -2,13 +2,13 @@ import {inject, lifeCycleObserver, LifeCycleObserver} from '@loopback/core';
 import {juggler} from '@loopback/repository';
 
 const config = {
-  name: 'mongoDB',
+  name: 'mongodb',
   connector: 'mongodb',
   url: 'mongodb://prisma:prisma@localhost:27017/?authSource=admin',
-  host: 'localhost',
-  port: 27017,
+  host: '',
+  port: 0,
   user: '',
-  password: 'prisma',
+  password: '',
   database: 'discounts',
   useNewUrlParser: true
 };
