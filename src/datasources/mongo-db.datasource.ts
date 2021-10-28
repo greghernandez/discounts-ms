@@ -4,12 +4,12 @@ import {juggler} from '@loopback/repository';
 const config = {
   name: 'mongodb',
   connector: 'mongodb',
-  url: 'mongodb://prisma:prisma@localhost:27017/?authSource=admin',
+  url: 'mongodb://ghernadez:nsyZihVnAM87fw@147.182.187.121:27017/ghernadez_production?authSource=admin',
   host: '',
   port: 0,
   user: '',
   password: '',
-  database: 'discounts',
+  database: '',
   useNewUrlParser: true
 };
 
