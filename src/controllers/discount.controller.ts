@@ -1,7 +1,7 @@
 
 import {repository} from '@loopback/repository';
 import {get, getModelSchemaRef, requestBody, response} from '@loopback/rest';
-import {Coupon, PriceDetail} from '../models';
+import {PriceDetail} from '../models';
 import {DiscountRequest} from '../models/discount-request.model';
 import {CouponRepository} from '../repositories';
 
@@ -37,36 +37,30 @@ export class DiscountController {
     })
     disountRequest: DiscountRequest,
   ): Promise<PriceDetail> {
-    let selectedCoupon: Coupon = {} as Coupon
     const coupon = await this.couponRepository.findOne({
       where: {
         type: 'amount',
         and: [
           {payment_method: disountRequest.payment_method},
           {coupon_code: disountRequest.coupon_code},
-          {min_amount: {lt: disountRequest.amount}}
+          {min_amount: {lt: disountRequest.amount}},
+          {valid_zones: {inq: disountRequest.valid_zones}}
         ]
       },
     })
-    // Check if coupon zones are included
-    if (coupon) {
-      // Check if coupon zones are included
-      if (coupon?.valid_zones.some(zone => disountRequest.valid_zones.includes(zone))) {
-        selectedCoupon = coupon
-      }
-    }
-    const response = selectedCoupon ?
+
+    const response = coupon ?
       {
         order_id: disountRequest.order_id,
         subtotal: disountRequest.amount,
-        discount_percentage: selectedCoupon.discount_percentage,
+        discount_percentage: coupon.discount_percentage,
         discount_amount: 0,
         shipping_discount_percentage: 0,
         shipping_discount_amount: 0,
         total: 0,
       } as PriceDetail
       : Promise.reject(new Error('Coupon not found'))
-    console.log('selectedCoupon', selectedCoupon)
+    console.log('selectedCoupon', coupon)
     return response
   }
 
