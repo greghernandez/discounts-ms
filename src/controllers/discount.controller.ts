@@ -43,7 +43,8 @@ export class DiscountController {
         type: 'amount',
         and: [
           {payment_method: disountRequest.payment_method},
-          {coupon_code: disountRequest.coupon_code}
+          {coupon_code: disountRequest.coupon_code},
+          {min_amount: {lt: disountRequest.amount}}
         ]
       },
     })
@@ -57,7 +58,7 @@ export class DiscountController {
     const response = selectedCoupon ?
       {
         order_id: disountRequest.order_id,
-        subtotal: 0,
+        subtotal: disountRequest.amount,
         discount_percentage: selectedCoupon.discount_percentage,
         discount_amount: 0,
         shipping_discount_percentage: 0,
