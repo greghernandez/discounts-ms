@@ -4,6 +4,7 @@ import {get, getModelSchemaRef, requestBody, response} from '@loopback/rest';
 import {PriceDetail} from '../models';
 import {DiscountRequest} from '../models/discount-request.model';
 import {CouponRepository} from '../repositories';
+import {formatResponse} from '../utils/discounts';
 
 
 export class DiscountController {
@@ -37,6 +38,7 @@ export class DiscountController {
     })
     disountRequest: DiscountRequest,
   ): Promise<PriceDetail> {
+    // Get coupon
     const coupon = await this.couponRepository.findOne({
       where: {
         type: 'amount',
@@ -49,17 +51,11 @@ export class DiscountController {
       },
     })
 
-    const response = coupon ?
-      {
-        order_id: disountRequest.order_id,
-        subtotal: disountRequest.amount,
-        discount_percentage: coupon.discount_percentage,
-        discount_amount: 0,
-        shipping_discount_percentage: 0,
-        shipping_discount_amount: 0,
-        total: 0,
-      } as PriceDetail
+    // Response format for discount
+    const response = coupon
+      ? formatResponse(disountRequest, coupon)
       : Promise.reject(new Error('Coupon not found'))
+
     console.log('selectedCoupon', coupon)
     return response
   }
@@ -89,9 +85,26 @@ export class DiscountController {
       },
     })
     disountRequest: DiscountRequest,
-  ): Promise<DiscountRequest> {
-    const coupons = await this.couponRepository.find({where: {type: 'ship'}})
-    console.log(coupons)
-    return disountRequest as DiscountRequest
+  ): Promise<PriceDetail> {
+    // Get coupon
+    const coupon = await this.couponRepository.findOne({
+      where: {
+        type: 'ship',
+        and: [
+          {payment_method: disountRequest.payment_method},
+          {coupon_code: disountRequest.coupon_code},
+          {min_amount: {lt: disountRequest.amount}},
+          {valid_zones: {inq: disountRequest.valid_zones}}
+        ]
+      },
+    })
+
+    // Response format for discount
+    const response = coupon
+      ? formatResponse(disountRequest, coupon)
+      : Promise.reject(new Error('Coupon not found'))
+
+    console.log('selectedCoupon', coupon)
+    return response
   }
 }
