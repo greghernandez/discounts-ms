@@ -1,11 +1,11 @@
 
 import {repository} from '@loopback/repository';
 import {get, getModelSchemaRef, requestBody, response} from '@loopback/rest';
+import * as Sentry from "@sentry/node";
 import {PriceDetail} from '../models';
 import {DiscountRequest} from '../models/discount-request.model';
 import {CouponRepository} from '../repositories';
 import {formatResponse} from '../utils/discounts';
-
 
 export class DiscountController {
   constructor(
@@ -52,12 +52,14 @@ export class DiscountController {
     })
 
     // Response format for discount
-    const response = coupon
+    const response = () => coupon
       ? formatResponse(disountRequest, coupon)
       : Promise.reject(new Error('Coupon not found'))
-
     console.log('selectedCoupon', coupon)
-    return response
+
+    return response().catch((err: string) => {
+      Sentry.captureException(err);
+    })
   }
 
 
@@ -100,11 +102,14 @@ export class DiscountController {
     })
 
     // Response format for discount
-    const response = coupon
+    const response = () => coupon
       ? formatResponse(disountRequest, coupon)
       : Promise.reject(new Error('Coupon not found'))
 
     console.log('selectedCoupon', coupon)
-    return response
+
+    return response().catch((err: string) => {
+      Sentry.captureException(err);
+    })
   }
 }

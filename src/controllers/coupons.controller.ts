@@ -4,27 +4,22 @@ import {
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
+import * as Sentry from "@sentry/node";
 import {Coupon} from '../models';
 import {CouponRepository} from '../repositories';
 
 export class CouponsController {
   constructor(
     @repository(CouponRepository)
-    public couponRepository : CouponRepository,
-  ) {}
+    public couponRepository: CouponRepository,
+  ) { }
 
   @post('/coupons')
   @response(200, {
@@ -137,7 +132,12 @@ export class CouponsController {
     @param.path.string('id') id: string,
     @requestBody() coupon: Coupon,
   ): Promise<void> {
-    await this.couponRepository.replaceById(id, coupon);
+    try {
+      await this.couponRepository.replaceById(id, coupon);
+    }
+    catch (e) {
+      Sentry.captureException(e);
+    }
   }
 
   @del('/coupons/{id}')
