@@ -1,6 +1,6 @@
 import {Coupon, DiscountRequest, PriceDetail} from '../models';
 
-export function formatResponse(request: DiscountRequest, coupon: Coupon): PriceDetail {
+export function formatResponse(request: DiscountRequest, coupons: Coupon[]): PriceDetail {
   // Amount discount
   let discount = 0
   let discountPercentage = 0
@@ -8,14 +8,16 @@ export function formatResponse(request: DiscountRequest, coupon: Coupon): PriceD
   // Shipping discount
   let shippingDiscountPercentage = 0
   let shippingDiscount = 0
-
+  console.log('coupons', coupons)
   // Set discount depending on coupon type
-  if (coupon.type === 'amount') {
-    discountPercentage = coupon.discount_percentage || 0
-    discount = request.amount * Number(coupon.discount_percentage) / 100
-  } else if (coupon.type === 'ship') {
-    shippingDiscountPercentage = coupon.discount_percentage || 0
-  }
+  coupons.forEach(c => {
+    if (c.type === 'amount') {
+      discountPercentage = c.discount_percentage || 0
+      discount = request.amount * Number(c.discount_percentage) / 100
+    } else if (c.type === 'ship') {
+      shippingDiscountPercentage = c.discount_percentage || 0
+    }
+  })
 
   // Calculate total [Only for amount type does not include shipping]
   const total = request.amount - discount
@@ -27,7 +29,6 @@ export function formatResponse(request: DiscountRequest, coupon: Coupon): PriceD
     discount_percentage: discountPercentage,
     discount_amount: discount,
     shipping_discount_percentage: shippingDiscountPercentage,
-    shipping_discount_amount: shippingDiscount,
     total: total
   } as PriceDetail
 
